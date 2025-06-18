@@ -1,45 +1,54 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Textarea } from '@/components/ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Calendar, MapPin, Clock, Heart, ExternalLink, Users, MessageCircle, Share2, ArrowLeft } from 'lucide-react'
-import { getEventById, TicketmasterEvent } from '@/lib/ticketmaster'
+import { Calendar, MapPin, Clock, Heart, ExternalLink, MessageCircle, Star, Share2, Users, ArrowLeft } from 'lucide-react'
+import { TicketmasterEvent, searchEvents } from '@/lib/ticketmaster'
 import { useAuth } from '@/hooks/useAuth'
-import { toast } from '@/hooks/use-toast'
+import { EventCard } from '@/components/EventCard'
 
 export const EventDetail = () => {
-  const { eventId } = useParams<{ eventId: string }>()
+  const { eventId } = useParams()
   const [event, setEvent] = useState<TicketmasterEvent | null>(null)
+  const [similarEvents, setSimilarEvents] = useState<TicketmasterEvent[]>([])
   const [loading, setLoading] = useState(true)
-  const [isSaved, setIsSaved] = useState(false)
+  const [comment, setComment] = useState('')
   const { user } = useAuth()
 
   useEffect(() => {
     if (eventId) {
-      loadEvent()
+      loadEventDetails()
+      loadSimilarEvents()
     }
   }, [eventId])
 
-  const loadEvent = async () => {
-    if (!eventId) return
-    
+  const loadEventDetails = async () => {
     try {
-      setLoading(true)
-      const eventData = await getEventById(eventId)
-      setEvent(eventData)
+      // In a real app, you'd fetch the specific event by ID
+      // For now, we'll simulate by searching all events and finding the matching one
+      const response = await searchEvents()
+      const foundEvent = response._embedded?.events?.find(e => e.id === eventId)
+      setEvent(foundEvent || null)
     } catch (error) {
-      console.error('Error loading event:', error)
-      toast({
-        title: "Error",
-        description: "Failed to load event details",
-        variant: "destructive"
-      })
+      console.error('Error loading event details:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadSimilarEvents = async () => {
+    try {
+      const response = await searchEvents()
+      const events = response._embedded?.events || []
+      // Filter out current event and take first 3
+      const filtered = events.filter(e => e.id !== eventId).slice(0, 3)
+      setSimilarEvents(filtered)
+    } catch (error) {
+      console.error('Error loading similar events:', error)
     }
   }
 
@@ -64,10 +73,11 @@ export const EventDetail = () => {
   }
 
   const getMainImage = () => {
-    if (!event?.images?.length) return '/placeholder.svg'
-    const mainImage = event.images.find(img => img.ratio === '16_9' && img.width >= 1024) || 
-                     event.images.find(img => img.ratio === '16_9') ||
-                     event.images[0]
+    if (!event?.images) return '/placeholder.svg'
+    const images = event.images
+    const mainImage = images.find(img => img.ratio === '16_9' && img.width >= 1024) || 
+                     images.find(img => img.ratio === '16_9') ||
+                     images[0]
     return mainImage?.url || '/placeholder.svg'
   }
 
@@ -84,31 +94,24 @@ export const EventDetail = () => {
     return `£${price.min} - £${price.max}`
   }
 
-  const handleShare = () => {
-    if (navigator.share && event) {
-      navigator.share({
-        title: event.name,
-        text: `Check out this event: ${event.name}`,
-        url: window.location.href
-      })
-    } else {
-      navigator.clipboard.writeText(window.location.href)
-      toast({
-        title: "Link copied!",
-        description: "Event link copied to clipboard"
-      })
+  const getGenre = () => {
+    return event?.classifications?.[0]?.genre?.name || 'Event'
+  }
+
+  const handleAddComment = () => {
+    if (comment.trim()) {
+      // In a real app, this would save to database
+      console.log('Adding comment:', comment)
+      setComment('')
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-96 bg-gray-200 rounded-lg mb-6"></div>
-            <div className="h-8 bg-gray-200 rounded mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-teal-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading event details...</p>
         </div>
       </div>
     )
@@ -117,13 +120,12 @@ export const EventDetail = () => {
   if (!event) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Event Not Found</h2>
-          <p className="text-gray-600 mb-4">The event you're looking for doesn't exist.</p>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Event not found</h1>
           <Button asChild>
-            <Link to="/">Back to Events</Link>
+            <Link to="/">Back to events</Link>
           </Button>
-        </Card>
+        </div>
       </div>
     )
   }
@@ -143,224 +145,181 @@ export const EventDetail = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2">
-            {/* Hero Image */}
-            <div className="relative mb-6">
-              <img
-                src={getMainImage()}
-                alt={event.name}
-                className="w-full h-96 object-cover rounded-lg"
-              />
-              <div className="absolute top-4 left-4">
-                <Badge className="bg-teal-600 text-white">
-                  {event.classifications?.[0]?.genre?.name || 'Event'}
-                </Badge>
-              </div>
-              <div className="absolute top-4 right-4 flex gap-2">
-                <Button size="sm" variant="secondary" onClick={handleShare}>
-                  <Share2 className="w-4 h-4" />
-                </Button>
-                <Button size="sm" variant="secondary">
-                  <Heart className={`w-4 h-4 ${isSaved ? 'fill-current text-red-500' : ''}`} />
-                </Button>
-              </div>
-            </div>
-
-            {/* Event Info */}
-            <div className="mb-6">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">{event.name}</h1>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div className="flex items-center">
-                  <Calendar className="w-5 h-5 mr-3 text-teal-600" />
-                  <div>
-                    <p className="font-semibold">{formatDate(event.dates.start.localDate)}</p>
-                    <p className="text-sm text-gray-600">{formatTime(event.dates.start.localTime)}</p>
-                  </div>
+          <div className="lg:col-span-2 space-y-6">
+            {/* Event Header */}
+            <Card className="overflow-hidden">
+              <div className="relative">
+                <img
+                  src={getMainImage()}
+                  alt={event.name}
+                  className="w-full h-64 md:h-80 object-cover"
+                />
+                <div className="absolute top-4 left-4">
+                  <Badge className="bg-teal-600 text-white">
+                    {getGenre()}
+                  </Badge>
                 </div>
-
-                {venue && (
-                  <div className="flex items-center">
-                    <MapPin className="w-5 h-5 mr-3 text-teal-600" />
-                    <div>
-                      <p className="font-semibold">{venue.name}</p>
-                      <p className="text-sm text-gray-600">{venue.city?.name}</p>
-                    </div>
-                  </div>
-                )}
-
-                {getPriceRange() && (
-                  <div className="flex items-center">
-                    <span className="text-2xl font-bold text-teal-600">{getPriceRange()}</span>
-                  </div>
-                )}
-
-                <div className="flex items-center">
-                  <Users className="w-5 h-5 mr-3 text-teal-600" />
-                  <span className="text-sm text-gray-600">42 people interested</span>
+                <div className="absolute top-4 right-4 flex space-x-2">
+                  <Button size="sm" variant="secondary" className="bg-black/60 hover:bg-black/80 text-white">
+                    <Heart className="w-4 h-4" />
+                  </Button>
+                  <Button size="sm" variant="secondary" className="bg-black/60 hover:bg-black/80 text-white">
+                    <Share2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
-
-              <div className="flex gap-4">
-                <Button className="bg-teal-600 hover:bg-teal-700" asChild>
-                  <a href={event.url} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Buy Tickets
-                  </a>
-                </Button>
-                <Button variant="outline">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Join Discussion
-                </Button>
-              </div>
-            </div>
-
-            {/* Tabs */}
-            <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="discussion">Discussion</TabsTrigger>
-                <TabsTrigger value="attendees">Attendees</TabsTrigger>
-              </TabsList>
               
-              <TabsContent value="details" className="mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Event Details</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
+              <CardContent className="p-6">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                  {event.name}
+                </h1>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="flex items-center">
+                    <Calendar className="w-5 h-5 mr-3 text-teal-600" />
                     <div>
-                      <h3 className="font-semibold mb-2">About this event</h3>
-                      <p className="text-gray-600">
-                        Join us for an amazing {event.classifications?.[0]?.genre?.name?.toLowerCase()} experience. 
-                        This event promises to be unforgettable with great entertainment and atmosphere.
-                      </p>
+                      <p className="font-medium">{formatDate(event.dates.start.localDate)}</p>
+                      {event.dates.start.localTime && (
+                        <p className="text-sm text-gray-600">{formatTime(event.dates.start.localTime)}</p>
+                      )}
                     </div>
-                    
-                    {venue && (
+                  </div>
+                  
+                  {venue && (
+                    <div className="flex items-center">
+                      <MapPin className="w-5 h-5 mr-3 text-teal-600" />
                       <div>
-                        <h3 className="font-semibold mb-2">Venue Information</h3>
-                        <p className="text-gray-600">{venue.name}</p>
-                        <p className="text-gray-600">{venue.address?.line1}</p>
-                        <p className="text-gray-600">{venue.city?.name}, {venue.country?.name}</p>
+                        <p className="font-medium">{venue.name}</p>
+                        <p className="text-sm text-gray-600">{venue.city?.name}</p>
                       </div>
-                    )}
+                    </div>
+                  )}
+                  
+                  {getPriceRange() && (
+                    <div className="flex items-center">
+                      <span className="text-2xl font-bold text-green-600">{getPriceRange()}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center">
+                    <Users className="w-5 h-5 mr-3 text-teal-600" />
+                    <span className="text-sm text-gray-600">234 people interested</span>
+                  </div>
+                </div>
 
-                    <div>
-                      <h3 className="font-semibold mb-2">Important Information</h3>
-                      <ul className="text-gray-600 space-y-1">
-                        <li>• Please arrive 30 minutes before the event</li>
-                        <li>• Valid ID required for entry</li>
-                        <li>• No outside food or beverages allowed</li>
-                        <li>• Parking available on-site</li>
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="discussion" className="mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Discussion</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-start space-x-3">
-                        <Avatar>
-                          <AvatarFallback>JD</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <p className="font-semibold">John Doe</p>
-                          <p className="text-gray-600">Really excited for this event! Anyone else going?</p>
-                          <p className="text-xs text-gray-400">2 hours ago</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start space-x-3">
-                        <Avatar>
-                          <AvatarFallback>SM</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <p className="font-semibold">Sarah Miller</p>
-                          <p className="text-gray-600">Count me in! This is going to be amazing 🎉</p>
-                          <p className="text-xs text-gray-400">1 hour ago</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="attendees" className="mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Attendees (42)</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {[...Array(6)].map((_, i) => (
-                        <div key={i} className="flex items-center space-x-2">
-                          <Avatar>
-                            <AvatarFallback>{`U${i + 1}`}</AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm">User {i + 1}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
-              {/* Quick Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button className="w-full bg-teal-600 hover:bg-teal-700" asChild>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button className="flex-1 bg-teal-600 hover:bg-teal-700" asChild>
                     <a href={event.url} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-4 h-4 mr-2" />
                       Buy Tickets
                     </a>
                   </Button>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="border-teal-600 text-teal-600 hover:bg-teal-50">
+                    <Heart className="w-4 h-4 mr-2" />
                     Save Event
                   </Button>
-                  <Button variant="outline" className="w-full">
-                    Share Event
-                  </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Similar Events */}
+            {/* Event Description */}
+            <Card>
+              <CardHeader>
+                <CardTitle>About This Event</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 leading-relaxed">
+                  {event.info || "Join us for an incredible experience! This event promises to be unforgettable with amazing entertainment and great atmosphere."}
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Discussion Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                  Discussion
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {user ? (
+                  <div className="space-y-4">
+                    <div className="flex space-x-3">
+                      <Avatar>
+                        <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <Textarea
+                          placeholder="Share your thoughts about this event..."
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                        />
+                        <Button 
+                          className="mt-2 bg-teal-600 hover:bg-teal-700"
+                          onClick={handleAddComment}
+                          disabled={!comment.trim()}
+                        >
+                          Post Comment
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600 mb-4">Sign in to join the discussion</p>
+                    <Button asChild>
+                      <Link to="/login">Sign In</Link>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Event Stats */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Event Stats</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Interested</span>
+                  <span className="font-semibold">234 people</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Going</span>
+                  <span className="font-semibold">89 people</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Rating</span>
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-current text-yellow-400" />
+                    ))}
+                    <span className="ml-1 text-sm text-gray-600">(4.8)</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Similar Events */}
+            {similarEvents.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Similar Events</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="flex items-center space-x-3">
-                        <img
-                          src="/placeholder.svg"
-                          alt="Event"
-                          className="w-16 h-16 object-cover rounded"
-                        />
-                        <div>
-                          <p className="font-semibold text-sm">Similar Event {i + 1}</p>
-                          <p className="text-xs text-gray-600">Tomorrow • London</p>
-                        </div>
-                      </div>
+                  <div className="space-y-4">
+                    {similarEvents.map((similarEvent) => (
+                      <EventCard key={similarEvent.id} event={similarEvent} />
                     ))}
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            )}
           </div>
         </div>
       </div>
