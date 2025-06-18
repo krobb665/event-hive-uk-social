@@ -104,7 +104,7 @@ export const Home = () => {
                 <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100" asChild>
                   <Link to="/signup">Join the Community</Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
+                <Button size="lg" variant="outline" className="border-white text-purple-600 hover:bg-white/10" asChild>
                   <Link to="/events">Browse Events</Link>
                 </Button>
               </div>
