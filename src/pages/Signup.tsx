@@ -3,7 +3,6 @@ import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Calendar } from 'lucide-react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -13,7 +12,7 @@ export const Signup = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-teal-600"></div>
       </div>
     )
   }
@@ -23,18 +22,17 @@ export const Signup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              EventSocial
-            </span>
+            <img 
+              src="/lovable-uploads/ef05406b-d504-442b-a492-c1eb05b422bf.png" 
+              alt="qiktix uk" 
+              className="h-12 w-auto"
+            />
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Join EventSocial</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Join qiktix uk</h1>
           <p className="text-gray-600">Create your account to start discovering amazing events</p>
         </div>
 
@@ -53,15 +51,15 @@ export const Signup = () => {
                 variables: {
                   default: {
                     colors: {
-                      brand: '#9333ea',
-                      brandAccent: '#7c3aed',
+                      brand: '#14b8a6',
+                      brandAccent: '#0d9488',
                     },
                   },
                 },
                 className: {
                   container: 'space-y-4',
                   button: 'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                  input: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500',
+                  input: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500',
                 },
               }}
               theme="light"
@@ -75,7 +73,7 @@ export const Signup = () => {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}
-                <Link to="/login" className="font-medium text-purple-600 hover:text-purple-500">
+                <Link to="/login" className="font-medium text-teal-600 hover:text-teal-500">
                   Sign in
                 </Link>
               </p>

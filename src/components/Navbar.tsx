@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { Search, User, Calendar, Settings, LogOut, Menu, X } from 'lucide-react'
+import { Search, User, Settings, LogOut, Menu, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -33,12 +33,11 @@ export const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              EventSocial
-            </span>
+            <img 
+              src="/lovable-uploads/ef05406b-d504-442b-a492-c1eb05b422bf.png" 
+              alt="qiktix uk" 
+              className="h-10 w-auto"
+            />
           </Link>
 
           {/* Search Bar - Desktop */}
@@ -101,7 +100,7 @@ export const Navbar = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/login">Sign In</Link>
                 </Button>
-                <Button asChild>
+                <Button className="bg-teal-500 hover:bg-teal-600" asChild>
                   <Link to="/signup">Sign Up</Link>
                 </Button>
               </>
@@ -158,7 +157,7 @@ export const Navbar = () => {
                   <Button variant="ghost" className="w-full justify-start" asChild>
                     <Link to="/login">Sign In</Link>
                   </Button>
-                  <Button className="w-full" asChild>
+                  <Button className="w-full bg-teal-500 hover:bg-teal-600" asChild>
                     <Link to="/signup">Sign Up</Link>
                   </Button>
                 </>

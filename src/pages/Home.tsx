@@ -86,9 +86,9 @@ export const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white">
+      <div className="relative overflow-hidden bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 text-white">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
@@ -96,15 +96,15 @@ export const Home = () => {
               Discover Amazing Events
               <span className="block text-yellow-300">Across the UK</span>
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-purple-100 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl mb-8 text-teal-100 max-w-3xl mx-auto">
               Find, discuss, and attend the best music, sports, and cultural events happening near you
             </p>
             {!user && (
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100" asChild>
+                <Button size="lg" className="bg-white text-teal-600 hover:bg-gray-100" asChild>
                   <Link to="/signup">Join the Community</Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-white text-purple-600 hover:bg-white/10" asChild>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
                   <Link to="/events">Browse Events</Link>
                 </Button>
               </div>
@@ -119,7 +119,7 @@ export const Home = () => {
           <section className="mb-12">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg">
+                <div className="p-2 bg-gradient-to-r from-teal-600 to-cyan-600 rounded-lg">
                   <Clock className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -127,7 +127,7 @@ export const Home = () => {
                   <p className="text-gray-600">Don't miss out on tonight's events</p>
                 </div>
               </div>
-              <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+              <Badge className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
                 {todayEvents.length} events
               </Badge>
             </div>
@@ -142,7 +142,7 @@ export const Home = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+          <Card className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5" />
@@ -151,11 +151,11 @@ export const Home = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{events.length}+</div>
-              <p className="text-purple-100">Events this month</p>
+              <p className="text-teal-100">Events this month</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <Card className="bg-gradient-to-r from-blue-600 to-teal-600 text-white">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2">
                 <TrendingUp className="w-5 h-5" />
@@ -168,7 +168,7 @@ export const Home = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-pink-600 to-red-600 text-white">
+          <Card className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2">
                 <MapPin className="w-5 h-5" />
@@ -177,7 +177,7 @@ export const Home = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">London</div>
-              <p className="text-pink-100">Most active location</p>
+              <p className="text-cyan-100">Most active location</p>
             </CardContent>
           </Card>
         </div>
