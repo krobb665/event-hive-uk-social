@@ -36,7 +36,7 @@ export const Navbar = () => {
             <img 
               src="/lovable-uploads/ef05406b-d504-442b-a492-c1eb05b422bf.png" 
               alt="qiktix uk" 
-              className="h-10 w-auto"
+              className="h-14 w-auto"
             />
           </Link>
 

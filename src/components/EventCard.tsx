@@ -124,64 +124,69 @@ export const EventCard = ({ event }: EventCardProps) => {
 
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-      <div className="relative">
-        <img
-          src={getMainImage()}
-          alt={event.name}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        <div className="absolute top-3 left-3">
-          <Badge variant="secondary" className="bg-black/60 text-white">
-            {getGenre()}
-          </Badge>
+      <Link to={`/event/${event.id}`} className="block">
+        <div className="relative">
+          <img
+            src={getMainImage()}
+            alt={event.name}
+            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute top-3 left-3">
+            <Badge variant="secondary" className="bg-black/60 text-white">
+              {getGenre()}
+            </Badge>
+          </div>
+          <div className="absolute top-3 right-3">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={(e) => {
+                e.preventDefault()
+                handleSaveEvent()
+              }}
+              disabled={isLoading}
+              className="bg-black/60 hover:bg-black/80 text-white border-none"
+            >
+              <Heart className={`w-4 h-4 ${isSaved ? 'fill-current text-red-500' : ''}`} />
+            </Button>
+          </div>
         </div>
-        <div className="absolute top-3 right-3">
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={handleSaveEvent}
-            disabled={isLoading}
-            className="bg-black/60 hover:bg-black/80 text-white border-none"
-          >
-            <Heart className={`w-4 h-4 ${isSaved ? 'fill-current text-red-500' : ''}`} />
-          </Button>
-        </div>
-      </div>
 
-      <CardContent className="p-4">
-        <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">
-          {event.name}
-        </h3>
+        <CardContent className="p-4">
+          <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-teal-600 transition-colors">
+            {event.name}
+          </h3>
 
-        <div className="space-y-2 text-sm text-gray-600">
-          <div className="flex items-center">
-            <Calendar className="w-4 h-4 mr-2 text-purple-500" />
-            <span>{formatDate(event.dates.start.localDate)}</span>
-            {event.dates.start.localTime && (
-              <>
-                <Clock className="w-4 h-4 ml-4 mr-2 text-purple-500" />
-                <span>{formatTime(event.dates.start.localTime)}</span>
-              </>
+          <div className="space-y-2 text-sm text-gray-600">
+            <div className="flex items-center">
+              <Calendar className="w-4 h-4 mr-2 text-teal-500" />
+              <span>{formatDate(event.dates.start.localDate)}</span>
+              {event.dates.start.localTime && (
+                <>
+                  <Clock className="w-4 h-4 ml-4 mr-2 text-teal-500" />
+                  <span>{formatTime(event.dates.start.localTime)}</span>
+                </>
+              )}
+            </div>
+
+            {venue && (
+              <div className="flex items-center">
+                <MapPin className="w-4 h-4 mr-2 text-teal-500" />
+                <span className="line-clamp-1">{venue.name}, {venue.city?.name}</span>
+              </div>
+            )}
+
+            {getPriceRange() && (
+              <div className="flex items-center">
+                <span className="font-semibold text-green-600">{getPriceRange()}</span>
+              </div>
             )}
           </div>
-
-          {venue && (
-            <div className="flex items-center">
-              <MapPin className="w-4 h-4 mr-2 text-purple-500" />
-              <span className="line-clamp-1">{venue.name}, {venue.city?.name}</span>
-            </div>
-          )}
-
-          {getPriceRange() && (
-            <div className="flex items-center">
-              <span className="font-semibold text-green-600">{getPriceRange()}</span>
-            </div>
-          )}
-        </div>
-      </CardContent>
+        </CardContent>
+      </Link>
 
       <CardFooter className="p-4 pt-0 flex gap-2">
-        <Button asChild className="flex-1">
+        <Button asChild className="flex-1 bg-teal-600 hover:bg-teal-700">
           <a href={event.url} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="w-4 h-4 mr-2" />
             Buy Tickets
