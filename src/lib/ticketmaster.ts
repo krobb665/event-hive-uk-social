@@ -1,4 +1,3 @@
-
 const TICKETMASTER_API_KEY = 'tFa5oK55QXJZxuDukSDeGZUqPUrCKTyw'
 const TICKETMASTER_BASE_URL = 'https://app.ticketmaster.com/discovery/v2'
 
@@ -123,9 +122,8 @@ export const searchEvents = async (
     sort: 'date,asc'
   })
 
-  // Always filter from today onwards, unless a specific start date is provided
-  const today = new Date()
-  const defaultStartDate = startDate || today.toISOString()
+  // Use fixed start date of June 1st, 2025 if no start date is provided
+  const defaultStartDate = startDate || '2025-06-01T00:00:00Z'
   params.append('startDateTime', defaultStartDate)
 
   if (keyword) params.append('keyword', keyword)
@@ -157,14 +155,13 @@ export const getEventById = async (eventId: string): Promise<TicketmasterEvent> 
 }
 
 export const getTodayEvents = async (): Promise<TicketmasterResponse> => {
-  const today = new Date()
-  const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
+  const startDate = '2025-06-01T00:00:00Z'
+  const endDate = '2025-06-02T00:00:00Z'
   
-  return searchEvents(undefined, undefined, undefined, today.toISOString(), tomorrow.toISOString())
+  return searchEvents(undefined, undefined, undefined, startDate, endDate)
 }
 
 export const getFeaturedEvents = async (): Promise<TicketmasterResponse> => {
-  // Get events from today onwards, sorted by date
-  const today = new Date()
-  return searchEvents(undefined, undefined, undefined, today.toISOString(), undefined, 0, 6)
+  // Get events from June 1st, 2025 onwards, sorted by date
+  return searchEvents(undefined, undefined, undefined, '2025-06-01T00:00:00Z', undefined, 0, 6)
 }
