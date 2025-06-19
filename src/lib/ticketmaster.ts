@@ -123,14 +123,17 @@ export const searchEvents = async (
     sort: 'date,asc'
   })
 
-  // If no start date is provided, default to today to filter out past events
-  const defaultStartDate = startDate || new Date().toISOString().split('T')[0] + 'T00:00:00Z'
+  // Always filter from today onwards, unless a specific start date is provided
+  const today = new Date()
+  const defaultStartDate = startDate || today.toISOString()
   params.append('startDateTime', defaultStartDate)
 
   if (keyword) params.append('keyword', keyword)
   if (category) params.append('classificationName', category)
   if (city) params.append('city', city)
   if (endDate) params.append('endDateTime', endDate)
+
+  console.log('Searching events with startDateTime:', defaultStartDate)
 
   const response = await fetch(`${TICKETMASTER_BASE_URL}/events.json?${params}`)
   if (!response.ok) {
@@ -154,8 +157,14 @@ export const getEventById = async (eventId: string): Promise<TicketmasterEvent> 
 }
 
 export const getTodayEvents = async (): Promise<TicketmasterResponse> => {
-  const today = new Date().toISOString().split('T')[0]
-  const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  const today = new Date()
+  const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
   
-  return searchEvents(undefined, undefined, undefined, `${today}T00:00:00Z`, `${tomorrow}T00:00:00Z`)
+  return searchEvents(undefined, undefined, undefined, today.toISOString(), tomorrow.toISOString())
+}
+
+export const getFeaturedEvents = async (): Promise<TicketmasterResponse> => {
+  // Get events from today onwards, sorted by date
+  const today = new Date()
+  return searchEvents(undefined, undefined, undefined, today.toISOString(), undefined, 0, 6)
 }
