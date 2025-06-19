@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EventCard } from '@/components/EventCard'
 import { EventFilters } from '@/components/EventFilters'
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import { Calendar, TrendingUp, MapPin, Clock, ArrowRight } from 'lucide-react'
 import { searchEvents, getTodayEvents, TicketmasterEvent } from '@/lib/ticketmaster'
 import { useAuth } from '@/hooks/useAuth'
@@ -13,7 +12,7 @@ import { Link } from 'react-router-dom'
 
 export const Home = () => {
   const [events, setEvents] = useState<TicketmasterEvent[]>([])
-  const [monthlyEvents, setMonthlyEvents] = useState<TicketmasterEvent[]>([])
+  const [todayEvents, setTodayEvents] = useState<TicketmasterEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
     search: '',
@@ -25,7 +24,7 @@ export const Home = () => {
 
   useEffect(() => {
     loadEvents()
-    loadMonthlyEvents()
+    loadTodayEvents()
   }, [])
 
   useEffect(() => {
@@ -52,12 +51,12 @@ export const Home = () => {
     }
   }
 
-  const loadMonthlyEvents = async () => {
+  const loadTodayEvents = async () => {
     try {
-      const response = await searchEvents(undefined, undefined, undefined, '2025-06-01T00:00:00Z', '2025-06-30T23:59:59Z')
-      setMonthlyEvents(response._embedded?.events?.slice(0, 8) || [])
+      const response = await getTodayEvents()
+      setTodayEvents(response._embedded?.events?.slice(0, 6) || [])
     } catch (error) {
-      console.error('Error loading monthly events:', error)
+      console.error('Error loading today events:', error)
     }
   }
 
@@ -92,13 +91,13 @@ export const Home = () => {
       <div className="relative overflow-hidden bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 text-white">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center mb-12">
+          <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Events This Month
-              <span className="block text-yellow-300">June 2025</span>
+              Discover Amazing Events
+              <span className="block text-yellow-300">Across the UK</span>
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-teal-100 max-w-3xl mx-auto">
-              Find, discuss, and attend the best music, sports, and cultural events happening this month
+              Find, discuss, and attend the best music, sports, and cultural events happening near you
             </p>
             {!user && (
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -111,27 +110,36 @@ export const Home = () => {
               </div>
             )}
           </div>
-
-          {/* Monthly Events Carousel */}
-          {monthlyEvents.length > 0 && (
-            <div className="max-w-6xl mx-auto">
-              <Carousel className="w-full">
-                <CarouselContent className="-ml-2 md:-ml-4">
-                  {monthlyEvents.map((event) => (
-                    <CarouselItem key={event.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                      <EventCard event={event} />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="text-white border-white hover:bg-white hover:text-teal-600" />
-                <CarouselNext className="text-white border-white hover:bg-white hover:text-teal-600" />
-              </Carousel>
-            </div>
-          )}
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Today's Events */}
+        {todayEvents.length > 0 && (
+          <section className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-gradient-to-r from-teal-600 to-cyan-600 rounded-lg">
+                  <Clock className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">Happening Today</h2>
+                  <p className="text-gray-600">Don't miss out on tonight's events</p>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
+                {todayEvents.length} events
+              </Badge>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {todayEvents.map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <Card className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
