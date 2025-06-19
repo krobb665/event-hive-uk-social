@@ -123,10 +123,13 @@ export const searchEvents = async (
     sort: 'date,asc'
   })
 
+  // If no start date is provided, default to today to filter out past events
+  const defaultStartDate = startDate || new Date().toISOString().split('T')[0] + 'T00:00:00Z'
+  params.append('startDateTime', defaultStartDate)
+
   if (keyword) params.append('keyword', keyword)
   if (category) params.append('classificationName', category)
   if (city) params.append('city', city)
-  if (startDate) params.append('startDateTime', startDate)
   if (endDate) params.append('endDateTime', endDate)
 
   const response = await fetch(`${TICKETMASTER_BASE_URL}/events.json?${params}`)
