@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,8 +27,6 @@ export const EventDetail = () => {
 
   const loadEventDetails = async () => {
     try {
-      // In a real app, you'd fetch the specific event by ID
-      // For now, we'll simulate by searching all events and finding the matching one
       const response = await searchEvents()
       const foundEvent = response._embedded?.events?.find(e => e.id === eventId)
       setEvent(foundEvent || null)
@@ -44,7 +41,6 @@ export const EventDetail = () => {
     try {
       const response = await searchEvents()
       const events = response._embedded?.events || []
-      // Filter out current event and take first 3
       const filtered = events.filter(e => e.id !== eventId).slice(0, 3)
       setSimilarEvents(filtered)
     } catch (error) {
@@ -100,7 +96,6 @@ export const EventDetail = () => {
 
   const handleAddComment = () => {
     if (comment.trim()) {
-      // In a real app, this would save to database
       console.log('Adding comment:', comment)
       setComment('')
     }
@@ -229,7 +224,7 @@ export const EventDetail = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 leading-relaxed">
-                  {event.info || "Join us for an incredible experience! This event promises to be unforgettable with amazing entertainment and great atmosphere."}
+                  Join us for an incredible experience! This event promises to be unforgettable with amazing entertainment and great atmosphere. Don't miss out on this fantastic opportunity to be part of something special.
                 </p>
               </CardContent>
             </Card>
